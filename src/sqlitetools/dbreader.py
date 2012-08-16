@@ -3,12 +3,17 @@ Created on Jun 13, 2012
 
 @package  ebf
 @author   mpaegert
-@version  \$Revision: 1.1 $
-@date     \$Date: 2012/07/06 20:38:49 $
+@version  \$Revision: 1.2 $
+@date     \$Date: 2012/08/16 22:21:53 $
 
 read and traverse sqlite database
 
 $Log: dbreader.py,v $
+Revision 1.2  2012/08/16 22:21:53  paegerm
+*** empty log message ***
+
+allow select parameter to be None for fetchmany and fetchone
+
 Revision 1.1  2012/07/06 20:38:49  paegerm
 Initial Revision
 
@@ -42,25 +47,27 @@ class DbReader(object):
         return (self.records)
     
     
-    def fetchmany(self, select, args = None, n = 10):
+    def fetchmany(self, select = None, args = None, n = 1000):
         if args == None:
             args = []
-        self.dbcurs.execute(select, args)
-        self.dbcurs.arraysize = n
+        if (select != None):
+            self.dbcurs.execute(select, args)
+            self.dbcurs.arraysize = n
         self.records = self.dbcurs.fetchmany()
         return self.records
     
     
-    def fetchone(self, select, args = None):
+    def fetchone(self, select = None, args = None):
         if args == None:
             args = []
-        self.dbcurs.execute(select, args)
+        if (select != None):
+            self.dbcurs.execute(select, args)
         self.records = self.dbcurs.fetchone()
         return self.records
     
     
     
-    def traverse(self, select, args = None, n = 10):
+    def traverse(self, select, args = None, n = 1000):
         self.fetchmany(select, args, n)
         while (len(self.records) != 0):
             for star in self.records:

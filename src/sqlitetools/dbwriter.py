@@ -3,12 +3,17 @@ Created on Jun 18, 2012
 
 @package  ebf
 @author   mpaegert
-@version  \$Revision: 1.1 $
-@date     \$Date: 2012/07/06 20:38:49 $
+@version  \$Revision: 1.2 $
+@date     \$Date: 2012/08/16 22:21:53 $
 
 read and traverse sqlite database
 
 $Log: dbwriter.py,v $
+Revision 1.2  2012/08/16 22:21:53  paegerm
+*** empty log message ***
+
+adding getlastuid, extending parameters for init (lf and noauto)
+
 Revision 1.1  2012/07/06 20:38:49  paegerm
 Initial Revision
 
@@ -24,13 +29,13 @@ class DbWriter(object):
     A reader for the sqlite databases
     '''
     def __init__(self, filename, cols, table = 'stars', types = None, 
-                 nulls = None):
+                 nulls = None, lf = None, noauto = False):
         
         if (filename == None) or (len(filename) == 0):
             raise NameError(filename)
         
         if (types != None) and (nulls != None):
-            create_db(filename, cols, types, nulls, table)
+            create_db(filename, cols, types, nulls, table, lf, noauto)
         
         self.table = table
         self.fname = filename
@@ -47,7 +52,12 @@ class DbWriter(object):
         cmd = 'delete from ' + self.table + ' where staruid = ?;'
         self.dbcurs.execute(cmd, [staruid])
         self.dbconn.commit()
-        
+
+
+    def getlastuid(self):
+        cmd = 'select max(uid) from ' + self.table + ';'
+        res = self.dbcurs.execute(cmd)
+        return res
         
         
     def insert(self, values, commit = False):
@@ -66,11 +76,9 @@ class DbWriter(object):
             self.dbconn.commit()
 
 
-
     def commit(self):
         self.dbconn.commit()
-        
-        
+                
         
     def close(self):
         self.dbcurs.close()
