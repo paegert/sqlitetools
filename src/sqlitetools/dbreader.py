@@ -3,15 +3,18 @@ Created on Jun 13, 2012
 
 @package  ebf
 @author   mpaegert
-@version  \$Revision: 1.2 $
-@date     \$Date: 2012/08/16 22:21:53 $
+@version  \$Revision: 1.3 $
+@date     \$Date: 2012/08/23 16:38:53 $
 
 read and traverse sqlite database
 
 $Log: dbreader.py,v $
-Revision 1.2  2012/08/16 22:21:53  paegerm
-*** empty log message ***
+Revision 1.3  2012/08/23 16:38:53  paegerm
+allow to switch off the row factory
 
+allow to switch off the row factory
+
+Revision 1.2  2012/08/16 22:21:53  paegerm
 allow select parameter to be None for fetchmany and fetchone
 
 Revision 1.1  2012/07/06 20:38:49  paegerm
@@ -27,13 +30,14 @@ class DbReader(object):
     A reader for the sqlite databases
     '''
     
-    def __init__(self, filename):
+    def __init__(self, filename, factory = True):
         if (filename == None) or (len(filename) == 0):
             raise NameError(filename)
         
         self.fname = filename
         self.dbconn = sqlite3.connect(filename)
-        self.dbconn.row_factory = sqlite3.Row
+        if (factory == True):
+            self.dbconn.row_factory = sqlite3.Row
         self.dbcurs = self.dbconn.cursor()
         self.records = None
         
