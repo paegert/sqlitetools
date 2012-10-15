@@ -3,15 +3,18 @@ Created on Jun 18, 2012
 
 @package  ebf
 @author   mpaegert
-@version  \$Revision: 1.2 $
-@date     \$Date: 2012/08/16 22:21:53 $
+@version  \$Revision: 1.3 $
+@date     \$Date: 2012/10/15 16:57:19 $
 
 read and traverse sqlite database
 
 $Log: dbwriter.py,v $
-Revision 1.2  2012/08/16 22:21:53  paegerm
-*** empty log message ***
+Revision 1.3  2012/10/15 16:57:19  paegerm
+adding default timeout of 10 s
 
+adding default timeout of 10 s
+
+Revision 1.2  2012/08/16 22:21:53  paegerm
 adding getlastuid, extending parameters for init (lf and noauto)
 
 Revision 1.1  2012/07/06 20:38:49  paegerm
@@ -29,7 +32,7 @@ class DbWriter(object):
     A reader for the sqlite databases
     '''
     def __init__(self, filename, cols, table = 'stars', types = None, 
-                 nulls = None, lf = None, noauto = False):
+                 nulls = None, lf = None, noauto = False, tout = 10.0):
         
         if (filename == None) or (len(filename) == 0):
             raise NameError(filename)
@@ -39,7 +42,7 @@ class DbWriter(object):
         
         self.table = table
         self.fname = filename
-        self.dbconn = sqlite3.connect(filename)
+        self.dbconn = sqlite3.connect(filename, timeout = tout)
         self.dbconn.row_factory = sqlite3.Row
         self.dbcurs = self.dbconn.cursor()
         self.dbcurs.execute('PRAGMA synchronous=OFF;')
