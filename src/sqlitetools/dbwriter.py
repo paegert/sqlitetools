@@ -3,15 +3,18 @@ Created on Jun 18, 2012
 
 @package  ebf
 @author   mpaegert
-@version  \$Revision: 1.3 $
-@date     \$Date: 2012/10/15 16:57:19 $
+@version  \$Revision: 1.4 $
+@date     \$Date: 2013/04/22 21:27:18 $
 
 read and traverse sqlite database
 
 $Log: dbwriter.py,v $
-Revision 1.3  2012/10/15 16:57:19  paegerm
-adding default timeout of 10 s
+Revision 1.4  2013/04/22 21:27:18  paegerm
+cols may be None if table exists, adding column description to class
 
+cols may be None if table exists, adding column description to class
+
+Revision 1.3  2012/10/15 16:57:19  paegerm
 adding default timeout of 10 s
 
 Revision 1.2  2012/08/16 22:21:53  paegerm
@@ -31,21 +34,27 @@ class DbWriter(object):
     '''
     A reader for the sqlite databases
     '''
-    def __init__(self, filename, cols, table = 'stars', types = None, 
+    def __init__(self, filename, cols = None, table = 'stars', types = None, 
                  nulls = None, lf = None, noauto = False, tout = 10.0):
         
         if (filename == None) or (len(filename) == 0):
             raise NameError(filename)
         
-        if (types != None) and (nulls != None):
+        if (cols != None) and (types != None) and (nulls != None):
             create_db(filename, cols, types, nulls, table, lf, noauto)
         
         self.table = table
         self.fname = filename
+        self.coldesc = None
         self.dbconn = sqlite3.connect(filename, timeout = tout)
+        if (cols == None):
+            curs = self.dbconn.execute('PRAGMA table_info(' + table + ')')
+            self.coldesc = curs.fetchall()
+            cols = [tuple[1] for tuple in self.coldesc]
         self.dbconn.row_factory = sqlite3.Row
         self.dbcurs = self.dbconn.cursor()
         self.dbcurs.execute('PRAGMA synchronous=OFF;')
+        
         self.inscmd = make_insert_statement(cols, table, '')
     
     
@@ -87,3 +96,11 @@ class DbWriter(object):
         self.dbcurs.close()
         self.dbconn.close()
         
+        
+
+if __name__ == '__main__':
+    fname = '/home/map/catalogs/kct.sqlite'
+    mywriter = DbWriter(fname)
+    print mywriter.inscmd
+    
+    
