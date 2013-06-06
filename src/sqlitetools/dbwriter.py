@@ -3,15 +3,18 @@ Created on Jun 18, 2012
 
 @package  ebf
 @author   mpaegert
-@version  \$Revision: 1.4 $
-@date     \$Date: 2013/04/22 21:27:18 $
+@version  \$Revision: 1.5 $
+@date     \$Date: 2013/06/06 18:19:57 $
 
 read and traverse sqlite database
 
 $Log: dbwriter.py,v $
-Revision 1.4  2013/04/22 21:27:18  paegerm
-cols may be None if table exists, adding column description to class
+Revision 1.5  2013/06/06 18:19:57  paegerm
+add isolation level
 
+add isolation level
+
+Revision 1.4  2013/04/22 21:27:18  paegerm
 cols may be None if table exists, adding column description to class
 
 Revision 1.3  2012/10/15 16:57:19  paegerm
@@ -32,10 +35,11 @@ from dbfunctions import *
 
 class DbWriter(object):
     '''
-    A reader for the sqlite databases
+    A writer for sqlite databases
     '''
     def __init__(self, filename, cols = None, table = 'stars', types = None, 
-                 nulls = None, lf = None, noauto = False, tout = 10.0):
+                 nulls = None, lf = None, noauto = False, tout = 10.0,
+                 isolevel = ''):
         
         if (filename == None) or (len(filename) == 0):
             raise NameError(filename)
@@ -46,7 +50,8 @@ class DbWriter(object):
         self.table = table
         self.fname = filename
         self.coldesc = None
-        self.dbconn = sqlite3.connect(filename, timeout = tout)
+        self.dbconn = sqlite3.connect(filename, timeout = tout,
+                                      isolation_level = isolevel)
         if (cols == None):
             curs = self.dbconn.execute('PRAGMA table_info(' + table + ')')
             self.coldesc = curs.fetchall()
@@ -100,7 +105,7 @@ class DbWriter(object):
 
 if __name__ == '__main__':
     fname = '/home/map/catalogs/kct.sqlite'
-    mywriter = DbWriter(fname)
+    mywriter = DbWriter(fname, isolevel = 'EXCLUSIVE')
     print mywriter.inscmd
     
     
