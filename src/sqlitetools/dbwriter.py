@@ -3,14 +3,17 @@ Created on Jun 18, 2012
 
 @package  ebf
 @author   mpaegert
-@version  \$Revision: 1.6 $
-@date     \$Date: 2013/07/19 16:50:46 $
+@version  \$Revision: 1.7 $
+@date     \$Date: 2013/07/19 16:54:26 $
 
 read and traverse sqlite database
 
 $Log: dbwriter.py,v $
-Revision 1.6  2013/07/19 16:50:46  paegerm
-*** empty log message ***
+Revision 1.7  2013/07/19 16:54:26  paegerm
+double commit
+
+Revision 1.6  2013/07/19 16:50:46  parvizm
+include functions creat_dict_idx and create_lc_idx for dynamic db index
 
 Revision 1.5  2013/06/06 18:19:57  paegerm
 add isolation level
