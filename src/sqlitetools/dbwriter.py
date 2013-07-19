@@ -3,15 +3,16 @@ Created on Jun 18, 2012
 
 @package  ebf
 @author   mpaegert
-@version  \$Revision: 1.5 $
-@date     \$Date: 2013/06/06 18:19:57 $
+@version  \$Revision: 1.6 $
+@date     \$Date: 2013/07/19 16:50:46 $
 
 read and traverse sqlite database
 
 $Log: dbwriter.py,v $
-Revision 1.5  2013/06/06 18:19:57  paegerm
-add isolation level
+Revision 1.6  2013/07/19 16:50:46  paegerm
+*** empty log message ***
 
+Revision 1.5  2013/06/06 18:19:57  paegerm
 add isolation level
 
 Revision 1.4  2013/04/22 21:27:18  paegerm
@@ -50,8 +51,11 @@ class DbWriter(object):
         self.table = table
         self.fname = filename
         self.coldesc = None
-        self.dbconn = sqlite3.connect(filename, timeout = tout,
-                                      isolation_level = isolevel)
+        if (isolevel == None):
+            self.dbconn = sqlite3.connect(filename, timeout = tout)
+        else:
+            self.dbconn = sqlite3.connect(filename, timeout = tout,
+                                          isolation_level = isolevel)
         if (cols == None):
             curs = self.dbconn.execute('PRAGMA table_info(' + table + ')')
             self.coldesc = curs.fetchall()
@@ -91,7 +95,16 @@ class DbWriter(object):
         self.dbcurs.executemany(cmd, values)
         if (commit == True):
             self.dbconn.commit()
+            
+    def create_dict_idx(self):
+        cmd = 'create index staruididx on ' + self.table + ' (uid asc);'
+        res = self.dbcurs.execute(cmd)
+        return res
 
+    def create_lc_idx(self):
+        cmd = 'create index staruididx on ' + self.table + ' (staruid asc);'
+        res = self.dbcurs.execute(cmd)
+        return res
 
     def commit(self):
         self.dbconn.commit()
