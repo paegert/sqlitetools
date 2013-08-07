@@ -3,13 +3,18 @@ Created on Jun 18, 2012
 
 @package  ebf
 @author   mpaegert
-@version  \$Revision: 1.7 $
-@date     \$Date: 2013/07/19 16:54:26 $
+@version  \$Revision: 1.8 $
+@date     \$Date: 2013/08/07 15:22:06 $
 
 read and traverse sqlite database
 
 $Log: dbwriter.py,v $
-Revision 1.7  2013/07/19 16:54:26  paegerm
+Revision 1.8  2013/08/07 15:22:06  paegerm
+add fetchall and orclause, addinf generic create_index function
+
+add fetchall and orclause, addinf generic create_index function
+
+Revision 1.7  2013/07/19 16:54:26  parvizm
 double commit
 
 Revision 1.6  2013/07/19 16:50:46  parvizm
@@ -43,7 +48,7 @@ class DbWriter(object):
     '''
     def __init__(self, filename, cols = None, table = 'stars', types = None, 
                  nulls = None, lf = None, noauto = False, tout = 10.0,
-                 isolevel = ''):
+                 isolevel = '', orclause = ''):
         
         if (filename == None) or (len(filename) == 0):
             raise NameError(filename)
@@ -67,7 +72,7 @@ class DbWriter(object):
         self.dbcurs = self.dbconn.cursor()
         self.dbcurs.execute('PRAGMA synchronous=OFF;')
         
-        self.inscmd = make_insert_statement(cols, table, '')
+        self.inscmd = make_insert_statement(cols, table, orclause)
     
     
     def deletebystaruid(self, staruid):
@@ -98,16 +103,34 @@ class DbWriter(object):
         self.dbcurs.executemany(cmd, values)
         if (commit == True):
             self.dbconn.commit()
+        
+        
+    def fetchall(self, select, args = None):
+        if args == None:
+            args = []
+        self.dbcurs.execute(select, args)
+        self.records = self.dbcurs.fetchall()
+        return (self.records)
+
             
     def create_dict_idx(self):
         cmd = 'create index staruididx on ' + self.table + ' (uid asc);'
         res = self.dbcurs.execute(cmd)
         return res
 
+
     def create_lc_idx(self):
         cmd = 'create index staruididx on ' + self.table + ' (staruid asc);'
         res = self.dbcurs.execute(cmd)
         return res
+    
+    
+    def create_index(self, idxname, fielddesc):
+        cmd = 'create index ' + idxname + ' on ' + self.table + \
+              ' (' + fielddesc + ');'
+        res = self.dbcurs.execute(cmd)
+        return res
+
 
     def commit(self):
         self.dbconn.commit()
